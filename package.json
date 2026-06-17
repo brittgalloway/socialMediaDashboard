@@ -1,0 +1,14 @@
+{
+  "name": "social-media-dashboard",
+  "version": "1.0.0",
+  "description": "Frontend Mentor social media dashboard — Alpine.js, CSS Grid, Playwright",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}
