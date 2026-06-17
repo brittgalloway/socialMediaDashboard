@@ -1,87 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- displays site properly based on user's device -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+    <title>Social Media Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-  <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
-  
-  <title>Frontend Mentor | [Challenge Name Here]</title>
+  <body x-data="dashboard()" :class="{ 'dark': dark }">
 
-  <!-- Feel free to remove these styles or customise in your own stylesheet 👍 -->
-  <style>
-    .attribution { font-size: 11px; text-align: center; }
-    .attribution a { color: hsl(228, 45%, 44%); }
-  </style>
-</head>
-<body>
+    <!-- ===================== HEADER ===================== -->
+    <header class="site-header">
+      <div class="container site-header__inner">
 
-  Social Media Dashboard
-  Total Followers: 23,004
+        <div class="site-header__titles">
+          <h1 class="site-header__heading">Social Media Dashboard</h1>
+          <p class="site-header__subheading">
+            Total Followers: <strong x-text="totalFollowers"></strong>
+          </p>
+        </div>
 
-  Dark Mode
+        <div class="site-header__theme">
+          <label
+            class="theme-toggle"
+            for="theme-switch"
+            id="theme-label"
+          >
+            <span class="theme-toggle__label">Dark Mode</span>
+            <button
+              id="theme-switch"
+              class="theme-toggle__track"
+              role="switch"
+              :aria-checked="dark.toString()"
+              aria-labelledby="theme-label"
+              @click="dark = !dark"
+            >
+              <span class="theme-toggle__thumb" aria-hidden="true"></span>
+            </button>
+          </label>
+        </div>
 
-  
+      </div>
+    </header>
 
-  @nathanf
-  1987
-  Followers
-  12 Today
+    <main id="main-content" class="container">
 
-  @nathanf
-  1044
-  Followers
-  99 Today
+      <!-- ===================== FOLLOWERS ===================== -->
+      <section aria-labelledby="followers-heading">
+        <h2 id="followers-heading" class="sr-only">Follower counts by platform</h2>
 
-  @realnathanf
-  11k
-  Followers
-  1099 Today
+        <ul class="followers-grid" role="list">
+          <template x-for="card in followers" :key="card.platform">
+            <li
+              class="follower-card"
+              :class="`follower-card--${card.platform}`"
+              role="button"
+              tabindex="0"
+              aria-label="`${card.platform} ${card.label.toLowerCase()} — display only`"
+              @click="showTooltip($event)"
+              @keydown.enter="showTooltip($event)"
+              @keydown.space.prevent="showTooltip($event)"
+            >
+              <div class="follower-card__handle">
+                <img
+                  :src="`./images/icon-${card.platform}.svg`"
+                  :alt="card.platform"
+                  class="follower-card__icon"
+                  width="20"
+                  height="20"
+                />
+                <span x-text="card.handle"></span>
+              </div>
 
-  Nathan F.
-  8239
-  Subscribers
-  144 Today
+              <div class="follower-card__count" aria-label="followers">
+                <span class="follower-card__number" x-text="card.count"></span>
+                <span class="follower-card__label" x-text="card.label"></span>
+              </div>
 
+              <div
+                class="follower-card__change"
+                :class="card.changeUp ? 'is-up' : 'is-down'"
+                :aria-label="`${card.changeUp ? 'Up' : 'Down'} ${card.change} today`"
+              >
+                <img
+                  :src="card.changeUp ? './images/icon-up.svg' : './images/icon-down.svg'"
+                  alt=""
+                  aria-hidden="true"
+                  width="8"
+                  height="4"
+                />
+                <span x-text="`${card.change} Today`"></span>
+              </div>
+            </li>
+          </template>
+        </ul>
+      </section>
 
+      <!-- ===================== OVERVIEW ===================== -->
+      <section aria-labelledby="overview-heading">
+        <h2 id="overview-heading" class="overview-heading">Overview - Today</h2>
 
-  Overview - Today
+        <ul class="overview-grid" role="list">
+          <template x-for="card in overview" :key="`${card.platform}-${card.metric}`">
+            <li
+              class="overview-card"
+              :class="`overview-card--${card.platform}`"
+              role="button"
+              tabindex="0"
+              :aria-label="`${card.platform} ${card.metric} — display only`"
+              @click="showTooltip($event)"
+              @keydown.enter="showTooltip($event)"
+              @keydown.space.prevent="showTooltip($event)"
+            >
+              <div class="overview-card__top">
+                <span class="overview-card__metric" x-text="card.metric"></span>
+                <img
+                  :src="`./images/icon-${card.platform}.svg`"
+                  :alt="card.platform"
+                  class="overview-card__icon"
+                  width="20"
+                  height="20"
+                />
+              </div>
 
-  Page Views
-  87
-  3%
+              <div class="overview-card__bottom">
+                <span class="overview-card__number" x-text="card.count"></span>
+                <div
+                  class="overview-card__change"
+                  :class="card.changeUp ? 'is-up' : 'is-down'"
+                  :aria-label="`${card.changeUp ? 'Up' : 'Down'} ${card.change} percent`"
+                >
+                  <img
+                    :src="card.changeUp ? './images/icon-up.svg' : './images/icon-down.svg'"
+                    alt=""
+                    aria-hidden="true"
+                    width="8"
+                    height="4"
+                  />
+                  <span x-text="`${card.change}%`"></span>
+                </div>
+              </div>
+            </li>
+          </template>
+        </ul>
+      </section>
 
-  Likes
-  52
-  2%
+    </main>
 
-  Likes
-  5462
-  2257%
+    <!-- ===================== TOOLTIP ===================== -->
+    <div
+      class="tooltip"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      x-show="tooltipVisible"
+      :style="`left: ${tooltipX}px; top: ${tooltipY}px`"
+      x-transition:enter="tooltip-enter"
+      x-transition:enter-start="tooltip-enter-start"
+      x-transition:enter-end="tooltip-enter-end"
+      x-transition:leave="tooltip-leave"
+      x-transition:leave-start="tooltip-leave-start"
+      x-transition:leave-end="tooltip-leave-end"
+    >
+      Display only
+    </div>
 
-  Profile Views
-  52k
-  1375%
+    <footer class="site-footer">
+      <div class="container">
+        <p class="attribution">
+          Challenge by
+          <a href="https://www.frontendmentor.io?ref=challenge" target="_blank" rel="noopener noreferrer">
+            Frontend Mentor
+          </a>.
+          Coded by
+          <a href="https://github.com/brittgalloway">Brittney Galloway</a>.
+        </p>
+      </div>
+    </footer>
 
-  Retweets
-  117
-  303%
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+      function dashboard() {
+        return {
+          dark: false,
+          tooltipVisible: false,
+          tooltipX: 0,
+          tooltipY: 0,
+          _tooltipTimer: null,
 
-  Likes
-  507
-  553%
+          showTooltip(event) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            const tooltipWidth = 120; // approximate — matches CSS min-width
+            const margin = 8;
 
-  Likes
-  107
-  19%
+            // Horizontally center over the card, clamped to viewport
+            let x = rect.left + rect.width / 2 - tooltipWidth / 2;
+            x = Math.max(margin, Math.min(x, window.innerWidth - tooltipWidth - margin));
 
-  Total Views
-  1407
-  12%
-  
-  <div class="attribution">
-    Challenge by <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">Frontend Mentor</a>. 
-    Coded by <a href="#">Your Name Here</a>.
-  </div>
-</body>
+            // Place above the card; fall back to below if not enough space
+            const tooltipHeight = 36;
+            let y = rect.top - tooltipHeight - margin;
+            if (y < margin) y = rect.bottom + margin;
+
+            this.tooltipX = x;
+            this.tooltipY = y;
+            this.tooltipVisible = true;
+            clearTimeout(this._tooltipTimer);
+            this._tooltipTimer = setTimeout(() => {
+              this.tooltipVisible = false;
+            }, 1000);
+          },
+
+          followers: [
+            {
+              platform: 'facebook',
+              handle: '@nathanf',
+              count: '1987',
+              label: 'FOLLOWERS',
+              change: '12',
+              changeUp: true,
+            },
+            {
+              platform: 'twitter',
+              handle: '@nathanf',
+              count: '1044',
+              label: 'FOLLOWERS',
+              change: '99',
+              changeUp: true,
+            },
+            {
+              platform: 'instagram',
+              handle: '@realnathanf',
+              count: '11k',
+              label: 'FOLLOWERS',
+              change: '1099',
+              changeUp: true,
+            },
+            {
+              platform: 'youtube',
+              handle: 'Nathan F.',
+              count: '8239',
+              label: 'SUBSCRIBERS',
+              change: '144',
+              changeUp: false,
+            },
+          ],
+
+          overview: [
+            { platform: 'facebook',  metric: 'Page Views',    count: '87',   change: '3',    changeUp: true  },
+            { platform: 'facebook',  metric: 'Likes',         count: '52',   change: '2',    changeUp: false },
+            { platform: 'instagram', metric: 'Likes',         count: '5462', change: '2257', changeUp: true  },
+            { platform: 'instagram', metric: 'Profile Views', count: '52k',  change: '1375', changeUp: true  },
+            { platform: 'twitter',   metric: 'Retweets',      count: '117',  change: '303',  changeUp: true  },
+            { platform: 'twitter',   metric: 'Likes',         count: '507',  change: '553',  changeUp: true  },
+            { platform: 'youtube',   metric: 'Likes',         count: '107',  change: '19',   changeUp: false },
+            { platform: 'youtube',   metric: 'Total Views',   count: '1407', change: '12',   changeUp: false },
+          ],
+
+          get totalFollowers() {
+            // Sum numeric follower counts, handle "11k" style values
+            return this.followers
+              .reduce((sum, card) => {
+                const raw = card.count;
+                const n = raw.endsWith('k')
+                  ? parseFloat(raw) * 1000
+                  : parseFloat(raw);
+                return sum + n;
+              }, 0)
+              .toLocaleString();
+          },
+        };
+      }
+    </script>
+  </body>
 </html>
